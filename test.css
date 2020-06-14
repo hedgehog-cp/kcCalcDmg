@@ -1,0 +1,24 @@
+body {
+    font-family: consolas;
+}
+.EqNum {
+    color: blue;
+}
+.AttackTable {
+    border-top: solid 1px;
+    border-collapse: separate;
+    border-spacing: 20px 1px;
+    
+    /*font-family: "consolas";*/
+    font-weight: normal;
+}
+.AttackTable-head {
+    border-bottom: 1 px;
+    color: red;
+}
+.kari {
+    border: 1px;
+}
+input {
+    width: 50px;
+}
