@@ -137,15 +137,14 @@ function main() {
     let Damage_2 = new Array(ARRAY_SIZE);
 
     //結果格納用配列
-    let resultBar = [[], []];    
-    for (let i = 0; i < 2; i++) {
-        for (let j = 0; j < ARRAY_SIZE; j++) {
-            resultBar[i][j] = 0;
-        }
-    }
-
+    let resultBar = [[], []];
     //グラフ描画用配列
     let resultLine = [[], []];
+    for (let i = 0; i < 2; i++) {
+        for (let j = 0; j < ARRAY_SIZE; j++) {
+            resultBar[i][j] = resultLine[i][j] = 0;
+        }
+    }
 
     let count = 0; //配列代入回数数え上げ
     let numWariai; //割合発生回数
@@ -218,7 +217,7 @@ function main() {
                             defense = 0.7 * armor + 0.6 * l - armorBreak;
                             damage = Math.floor((fp - defense) * ammo);
                             if (damage >= 1) { //装甲貫通ならば
-                                for (let m = MinDamage; m <= MaxDamage; m++) { //1撃目の与ダメmの発生確率と乗算し格納
+                                for (let m = 0; m <= MaxDamage; m++) { //1撃目の与ダメmの発生確率と乗算し格納
                                     Damage_2[m + damage] += Damage_1[m] * Acc[i][j] * cl / armor;
                                     count++;
                                 }
@@ -270,6 +269,7 @@ function main() {
 
     $("#count").text("計算回数 : " + count);
 
+    console.log("配列サイズ : " + ARRAY_SIZE);
     console.log("発生確率 : " + resultBar);
     console.log("下側確率 : " + resultLine);
 
