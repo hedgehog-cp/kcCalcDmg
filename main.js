@@ -65,12 +65,14 @@ function checkForInput(HP, armor, armorBreak, ammo, f1, f2, CL, Acc, chance) {
 function getMaxDamage(f2, armor, armorBreak, ammo, hp) {
     let defense = 0.7 * armor + 0.6 * 0 - armorBreak;
     let normal = Math.floor((f2 - defense) * ammo);
+    if (normal < 1) normal = 0;
     let wariai = Math.floor(0.06 * hp + 0.08 * (hp - 1));
     return Math.max(normal, wariai);
 }
 function getMinDamage(f1, armor, armorBreak, ammo, hp) {
     let defense = 0.7 * armor + 0.6 * (armor - 1) - armorBreak;
     let normal = Math.floor((f1 - defense) * ammo);
+    if (normal < 1) normal = 0;
     let wariai = Math.floor(0.06 * hp + 0.08 * 0);
     return Math.min(normal, wariai);
 }
@@ -84,7 +86,7 @@ function getArraySize(HP, armor, armorBreak, ammo, kind, f2, chance) {
             if (chance[i][j] > 0) {
                 MaxDamage[i * KIND_NUM + j] = getMaxDamage(f2[i][j], armor, armorBreak, ammo, HP);
                 if (kind[i][j] == 1 || kind[i][j] == 2 || kind[i][j] == 3) { //2回攻撃ならば
-                    if ((hp = HP - MaxDamage[j]) < 0) hp = 0;
+                    if ((hp = HP - MaxDamage[i * KIND_NUM + j]) < 0) hp = 0;
                     MaxDamage[i * KIND_NUM + j] += getMaxDamage(f2[i][j], armor, armorBreak, ammo, hp);
                 }
             }
@@ -182,9 +184,10 @@ function main() {
                         }
                     }
                     if (numWariai > 0) { //命中時割合処理
-                        for (let l = 0; l < HP; l++) {
-                            damage = Math.floor(0.06 * HP + 0.08 * l);
-                            Damage_1[damage] += numWariai * Acc[i][j] * cl / armor / HP;
+                        if ((num = HP) == 0) num = 1;
+                        for (let l = 0; l < num; l++) {                            
+                            damage = Math.floor(0.06 * num + 0.08 * l);
+                            Damage_1[damage] += numWariai * Acc[i][j] * cl / armor / num;
                             count++;
                         }
                     }
@@ -193,17 +196,18 @@ function main() {
                     Damage_1[0] += 1 - Acc[i][j];
                     count++;
                 } else { //特殊攻撃の非命中時割合処理
-                    for (let k = 0; k < HP; k++) {
-                        damage = Math.floor(0.06 * HP + 0.08 * k);
-                        Damage_1[damage] += (1 - Acc[i][j]) / HP;
+                    if ((num = HP) == 0) num = 1;
+                    for (let k = 0; k < num; k++) {
+                        damage = Math.floor(0.06 * num + 0.08 * k);
+                        Damage_1[damage] += (1 - Acc[i][j]) / num;
                         count++;
                     }
                 }
                 if (kind[i][j]== 1 || kind[i][j] == 2 || kind[i][j] == 3) { //2回攻撃ならば
                     MaxDamage = getMaxDamage(f2[i][j], armor, armorBreak, ammo, HP); //最大与ダメ
                     MinDamage = getMinDamage(f1[i][j], armor, armorBreak, ammo, HP); //最小与ダメ
-                    if ((MaxHP = HP - MinDamage) < 0) MaxHP = 0; //最大残耐久
-                    if ((MinHP = HP - MaxDamage) < 0) MinHP = 0; //最小残耐久
+                    if ((MaxHP = HP - MinDamage) < 0) MaxHP = 1; //最大残耐久
+                    if ((MinHP = HP - MaxDamage) < 0) MinHP = 1; //最小残耐久
                     for (let k = 0; k < 2; k++) { //CL1, CL2攻撃力のループと選択 
                         if (k == 0) {
                             fp = f1[i][j];
@@ -217,7 +221,7 @@ function main() {
                             defense = 0.7 * armor + 0.6 * l - armorBreak;
                             damage = Math.floor((fp - defense) * ammo);
                             if (damage >= 1) { //装甲貫通ならば
-                                for (let m = 0; m <= MaxDamage; m++) { //1撃目の与ダメmの発生確率と乗算し格納
+                                for (let m = MinDamage; m <= MaxDamage; m++) { //1撃目の与ダメmの発生確率と乗算し格納
                                     Damage_2[m + damage] += Damage_1[m] * Acc[i][j] * cl / armor;
                                     count++;
                                 }
@@ -227,34 +231,36 @@ function main() {
                         }
                         if (numWariai > 0) { //命中時割合処理
                             for (let l = MinHP; l <= MaxHP; l++) { //残耐久MinHP~MaxHP
-                                if ((num = l) == 0) num = 1;
                                 if (Damage_1[HP - l] > 0) { //for文ループ最適化 ( 与ダメ(HP - l)の発生確率が0ならば無視する )
-                                    for (let m = 0; m < num; m++) {
+                                    for (let m = 0; m < l; m++) {
                                         damage = Math.floor(0.06 * l + 0.08 * m);
-                                        Damage_2[HP - l + damage] += numWariai * Damage_1[HP - l] * Acc[i][j] * cl / armor / num;
+                                        Damage_2[HP - l + damage] += numWariai * Damage_1[HP - l] * Acc[i][j] * cl / armor / l;
                                         count++;
                                     }
                                 }
                             }
                             for (let l = HP; l <= MaxDamage; l++) { //1撃目で残耐久0≡撃沈したときの割合ダメージ=0の格納
-                                if ((num = l) == 0) num = 1;
                                 Damage_2[l] += numWariai * Damage_1[l] * Acc[i][j] * cl / armor;
                                 count++;
                             }
                         }
                     }
                     for (let k = MinHP; k <= MaxHP; k++) { //2撃目が非命中時の割合ダメージ
-                        if ((num = k) == 0) num = 1;
                         if (Damage_1[HP - k] > 0) {
-                            for (let l = 0; l < num; l++) {
+                            for (let l = 0; l < k; l++) {
                                 damage = Math.floor(0.06 * k + 0.08 * l);
-                                Damage_2[HP - k + damage] += Damage_1[HP - k] * (1 - Acc[i][j])  / num;
+                                Damage_2[HP - k + damage] += Damage_1[HP - k] * (1 - Acc[i][j]) / k;
                                 count++;
                             }
                         }
                     }
+                    for (let k = HP; k <= MaxDamage; k++) { //1撃目で残耐久0≡撃沈したときの非命中時割合ダメージ=0の格納
+                        Damage_2[k] += Damage_1[k] * (1 - Acc[i][j]);
+                        count++;
+                    }
                     //2回攻撃の確率分布を格納
                     for (let k = 0; k < ARRAY_SIZE; k++) resultBar[i][k] += chance[i][j] * Damage_2[k];
+                    console.log(Damage_2);
                 } else {
                     //1回攻撃の確率分布を格納
                     for (let k = 0; k < ARRAY_SIZE; k++) resultBar[i][k] += chance[i][j] * Damage_1[k];
