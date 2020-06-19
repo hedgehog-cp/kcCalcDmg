@@ -2,7 +2,7 @@ table {
     border-collapse: separate;
     border-spacing: 30px 0px;
 }
-.cat0-0 {    
+.cat0-0 {
     border: 10px;
     padding-bottom: 15px;
 }
@@ -12,7 +12,7 @@ table {
     color: midnightblue;
     padding-right: 45px;
 }
-.cat1-0 {    
+.cat1-0 {
     border: 10px;
     padding-bottom: 15px;
 }
@@ -29,7 +29,6 @@ table {
     padding-right: 20px;
 }
 .AttackTable {
-      
     font-weight: normal;
 }
 input {
