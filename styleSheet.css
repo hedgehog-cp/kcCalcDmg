@@ -8,6 +8,7 @@ table {
 }
 .cat0-1 {
     float: left;
+    font-size:small;
     font-weight: bold;
     color: midnightblue;
     padding-right: 45px;
@@ -18,22 +19,36 @@ table {
 }
 .cat1-1-0 {
     float: left;
+    font-size:small;
     font-weight: bold;
     color: red;
     padding-right: 20px;
 }
 .cat1-1-1 {
     float: left;
+    font-size:small;
     font-weight: bold;
     color: blue;
     padding-right: 20px;
 }
-.AttackTable {
-    font-weight: normal;
+.EnemyTable {
+    font-size:small;
+}
+.AttackTable-head {
+    font-size: small;
 }
 input {
     width: 80px;
 }
 .count {
     font-size: small;
+}
+.input-smaller {
+    width: 54px;
+}
+.head-line {
+    margin-top: -8px;
+    margin-left: -8px;
+    width: 826px;
+    border-top: solid 1px;
 }
